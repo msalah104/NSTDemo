@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">NST Demo</string>
+    <string name="query_summary" formatted="false" >\nTotal Mobile Usage Rx: %d , Tx: %d  \n Total Wifi Usage Rx: %d , Tx: %d  \n  start time = %s \n end time = %s \n</string>
+</resources>
