@@ -10,7 +10,7 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
 
-        Helper helper = new Helper(context);
+        Helper helper = Helper.getSharedInstance(context);
         helper.addNewAlarm();
         helper.addNewQuery();
 
