@@ -20,18 +20,15 @@ import java.util.Calendar;
 
 class Helper {
 
-    static final String DATA_USAGE_LIST = "data_usage_list";
-    static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
-    static final String EMPTY_STRING = "";
+    private static final String DATA_USAGE_LIST = "data_usage_list";
+    private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
+    private static final String EMPTY_STRING = "";
     private static final String TAG = "MainActivity";
     private static final String STRING_SPLITTER = "#";
 
+    private Context context;
 
-    NetworkStatsManager networkStatsManager;
-    private PendingIntent pendingIntent;
-    Context context;
-
-    public Helper(Context context) {
+    Helper(Context context) {
         this.context = context;
     }
 
@@ -40,21 +37,16 @@ class Helper {
         String [] records = getListOfRecords();
         records = appendValue(records, newQuery);
         updateData(records);
-
         if (context instanceof Activity){
-            ((Activity)context).adapter = new ArrayAdapter<String>(context,
-                                                                       android.R.layout.simple_list_item_1, android.R.id.text1, records);
-
+            ((Activity)context).adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, android.R.id.text1, records);
             ((Activity)context).listView.setAdapter(((Activity)context).adapter);
         }
     }
 
 
-    public String queryForDataUsage() {
-
-        networkStatsManager = (NetworkStatsManager) context.getSystemService(
-                Context.NETWORK_STATS_SERVICE);
-
+    private String queryForDataUsage() {
+        NetworkStatsManager networkStatsManager = (NetworkStatsManager) context.getSystemService
+            (Context.NETWORK_STATS_SERVICE);
         String mobile_id = getMobileSubscribeId();
         long endTime = System.currentTimeMillis();
         long startTime = getInstallationTime();
@@ -75,22 +67,16 @@ class Helper {
         } catch (RemoteException e) {
             e.printStackTrace();
         }
-
         return "";
     }
 
-    void updateData(String [] records) {
-
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < records.length; i++) {
-            sb.append(records[i]).append(STRING_SPLITTER);
-        }
-
+    private void updateData(String[] records) {
+        StringBuilder builder = new StringBuilder();
+        for (String record: records) builder.append(record).append(STRING_SPLITTER);
         SharedPreferences pref = context.getSharedPreferences(TAG, Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
-        editor.putString(DATA_USAGE_LIST, sb.toString());
-        editor.commit();
-
+        editor.putString(DATA_USAGE_LIST, builder.toString());
+        editor.apply();
     }
 
     String [] getListOfRecords () {
@@ -102,12 +88,11 @@ class Helper {
         } else  {
             return new String[] {};
         }
-
     }
 
-    public void addNewAlarm () {
+    void addNewAlarm() {
         Intent alarmIntent = new Intent(context, AlarmReceiver.class);
-        pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
 
         AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         int interval = 5000;
@@ -116,16 +101,14 @@ class Helper {
     }
 
     private String[] appendValue(String[] obj, String newObj) {
-        ArrayList<String> temp = new ArrayList<String>(Arrays.asList(obj));
+        ArrayList<String> temp = new ArrayList<>(Arrays.asList(obj));
         temp.add(0, newObj);
         return temp.toArray(new String[temp.size()]);
     }
 
-    public static String getDate(long milliSeconds)
-    {
+    private static String getDate(long milliSeconds) {
         // Create a DateFormatter object for displaying date in specified format.
         SimpleDateFormat formatter = new SimpleDateFormat(FORMATTER);
-
         // Create a calendar object that will convert the date and time value in milliseconds to date.
         Calendar calendar = Calendar.getInstance();
         calendar.setTimeInMillis(milliSeconds);
@@ -133,17 +116,14 @@ class Helper {
     }
 
 
-    public String getMobileSubscribeId() {
+    private String getMobileSubscribeId() {
         TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
         return tm.getSubscriberId();
     }
 
-    public long getInstallationTime() {
+    private long getInstallationTime() {
         try {
-            long time = context.getPackageManager()
-                    .getPackageInfo(context.getPackageName(), 0)
-                    .lastUpdateTime;
-            return time;
+            return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).lastUpdateTime;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

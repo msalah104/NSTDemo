@@ -20,7 +20,7 @@ public class Activity extends android.app.Activity {
         helper = new Helper(this);
 
         listView = (ListView) findViewById(R.id.list);
-        adapter = new ArrayAdapter<String>(this,
+        adapter = new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, helper.getListOfRecords());
 
         listView.setAdapter(adapter);
@@ -36,10 +36,6 @@ public class Activity extends android.app.Activity {
         if (checkSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_DENIED) {
             requestPermissions(new String[] { Manifest.permission.ACCESS_NETWORK_STATE }, 0);
         }
-        adapter = new ArrayAdapter<String>(this,
-                                           android.R.layout.simple_list_item_1, android.R.id.text1, helper.getListOfRecords());
-
-        listView.setAdapter(adapter);
 
     }
 
