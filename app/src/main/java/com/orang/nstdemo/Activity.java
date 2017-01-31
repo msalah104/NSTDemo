@@ -6,15 +6,12 @@ import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
-public class Activity extends AppCompatActivity {
+public class Activity extends android.app.Activity {
 
     private static final int PERMISSION_ID = 1;
 
@@ -26,26 +23,6 @@ public class Activity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.READ_PHONE_STATE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_PHONE_STATE,
-                    },
-                    PERMISSION_ID);
-        }
-
-        if (ContextCompat.checkSelfPermission(this,
-                Manifest.permission.ACCESS_NETWORK_STATE)
-                != PackageManager.PERMISSION_GRANTED) {
-
-            ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.ACCESS_NETWORK_STATE,
-                    },
-                    PERMISSION_ID);
-        }
 
         helper = new Helper(this);
 
@@ -60,7 +37,12 @@ public class Activity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
-
+    if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
+            requestPermissions(new String[] { Manifest.permission.READ_PHONE_STATE }, 0);
+        }
+        if (checkSelfPermission(Manifest.permission.ACCESS_NETWORK_STATE) == PackageManager.PERMISSION_DENIED) {
+            requestPermissions(new String[] { Manifest.permission.ACCESS_NETWORK_STATE }, 0);
+        }
         adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, android.R.id.text1, helper.getListOfRecords());
 
