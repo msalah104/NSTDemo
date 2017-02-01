@@ -25,11 +25,29 @@ class Helper {
     private static final String EMPTY_STRING = "";
     private static final String TAG = "MainActivity";
     private static final String STRING_SPLITTER = "#";
+    private static final int ALARM_INTERVAL = 5000;
 
     private Context context;
+    private Activity activity;
+    private static Helper sharedInstance;
 
-    Helper(Context context) {
+    private Helper(Context context) {
         this.context = context;
+    }
+
+    public static Helper getSharedInstance (Context context) {
+        if (sharedInstance == null) {
+            sharedInstance = new Helper(context);
+        }
+        return sharedInstance;
+    }
+
+    public Activity getActivity() {
+        return activity;
+    }
+
+    public void setActivity(Activity activity) {
+        this.activity = activity;
     }
 
     void addNewQuery() {
@@ -37,7 +55,7 @@ class Helper {
         String [] records = getListOfRecords();
         records = appendValue(records, newQuery);
         updateData(records);
-        if (context instanceof Activity){
+        if (activity != null){
             ((Activity)context).adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, android.R.id.text1, records);
             ((Activity)context).listView.setAdapter(((Activity)context).adapter);
         }
@@ -95,9 +113,9 @@ class Helper {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
 
         AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        int interval = 5000;
 
-        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), interval, pendingIntent);
+
+        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), ALARM_INTERVAL, pendingIntent);
     }
 
     private String[] appendValue(String[] obj, String newObj) {
