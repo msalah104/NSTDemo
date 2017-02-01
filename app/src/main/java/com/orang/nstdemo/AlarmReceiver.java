@@ -11,7 +11,6 @@ public class AlarmReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
-        Helper helper = Helper.getSharedInstance(context);
         if (Activity.resumed != null) {
             Activity.resumed.addNewAlarm();
             Activity.resumed.addNewQuery();

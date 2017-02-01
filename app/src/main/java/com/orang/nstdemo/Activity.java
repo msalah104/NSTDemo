@@ -33,7 +33,6 @@ public class  Activity extends android.app.Activity {
     private static final String STRING_SPLITTER = "#";
     private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
 
-    Helper helper;
     ListView listView;
     ArrayAdapter<String> adapter;
     List<String> records;
@@ -43,13 +42,11 @@ public class  Activity extends android.app.Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity);
-        helper = Helper.getSharedInstance(this);
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        helper.setActivity(this);
         listView = (ListView) findViewById(R.id.list);
         records = getListOfRecords();
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, records);
@@ -73,7 +70,6 @@ public class  Activity extends android.app.Activity {
 
     @Override
     protected void onStop() {
-        helper.setActivity(null);
         updateData(records);
         super.onStop();
     }
@@ -95,7 +91,6 @@ public class  Activity extends android.app.Activity {
         super.onActivityResult(requestCode, resultCode, data);
         // Assuming user has granted the uage permission
         if (requestCode == PERMISSION_ID) {
-            helper.setActivity(this);
             addNewQuery();
             addNewAlarm();
         }
