@@ -3,18 +3,26 @@ package com.orang.nstdemo;
 import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.usage.NetworkStats;
+import android.app.usage.NetworkStatsManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.RemoteException;
 import android.provider.Settings;
+import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.List;
 
 public class  Activity extends android.app.Activity {
@@ -23,6 +31,7 @@ public class  Activity extends android.app.Activity {
     private static final int PERMISSION_ID = 1;
     private static final String DATA_USAGE_LIST = "data_usage_list";
     private static final String STRING_SPLITTER = "#";
+    private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
 
     Helper helper;
     ListView listView;
@@ -87,7 +96,7 @@ public class  Activity extends android.app.Activity {
         // Assuming user has granted the uage permission
         if (requestCode == PERMISSION_ID) {
             helper.setActivity(this);
-            helper.addNewQuery();
+            addNewQuery();
             addNewAlarm();
         }
     }
@@ -117,4 +126,58 @@ public class  Activity extends android.app.Activity {
         AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
         manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pendingIntent);
     }
+
+    void addNewQuery() {
+        String newQuery = queryForDataUsage();
+        if (records == null) return;
+        records.add(0, newQuery);
+        adapter.notifyDataSetChanged();
+    }
+
+    private String queryForDataUsage() {
+        NetworkStatsManager networkStatsManager = (NetworkStatsManager) getSystemService(Context.NETWORK_STATS_SERVICE);
+        String mobile_id = getMobileSubscribeId();
+        long endTime = System.currentTimeMillis();
+        long startTime = getInstallationTime();
+        try {
+            NetworkStats.Bucket mobileBucket = networkStatsManager.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, mobile_id, startTime, endTime);
+            NetworkStats.Bucket wifiBucket = networkStatsManager.querySummaryForUser(ConnectivityManager.TYPE_WIFI, "", startTime, endTime);
+            String querySummary = getResources().getString(R.string.query_summary);
+            querySummary = String.format(querySummary,
+                    getDate(startTime),
+                    getDate(endTime),
+                    mobileBucket.getRxBytes(),
+                    mobileBucket.getTxBytes(),
+                    wifiBucket.getRxBytes(),
+                    wifiBucket.getTxBytes());
+            return querySummary;
+        } catch (RemoteException e) {
+            Log.e(TAG, "", e);
+        }
+        return "";
+    }
+
+    private static String getDate(long milliSeconds) {
+        // Create a DateFormatter object for displaying date in specified format.
+        SimpleDateFormat formatter = new SimpleDateFormat(FORMATTER);
+        // Create a calendar object that will convert the date and time value in milliseconds to date.
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTimeInMillis(milliSeconds);
+        return formatter.format(calendar.getTime());
+    }
+
+    private String getMobileSubscribeId() {
+        TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
+        return tm.getSubscriberId();
+    }
+
+    private long getInstallationTime() {
+        try {
+            return getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
+        } catch (PackageManager.NameNotFoundException e) {
+            return Long.MAX_VALUE;
+        }
+    }
+
+
 }

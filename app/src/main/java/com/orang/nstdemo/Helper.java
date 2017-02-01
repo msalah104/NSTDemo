@@ -13,8 +13,6 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 
 class Helper {
-    private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
-    private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
 
     private Context context;
     private Activity activity;
@@ -35,56 +33,5 @@ class Helper {
         this.activity = activity;
     }
 
-    void addNewQuery() {
-        String newQuery = queryForDataUsage();
-        if (activity == null) return;
-        if (activity.records == null) return;
-        activity.records.add(0, newQuery);
-        activity.adapter.notifyDataSetChanged();
-    }
 
-    private String queryForDataUsage() {
-        NetworkStatsManager networkStatsManager = (NetworkStatsManager) context.getSystemService(Context.NETWORK_STATS_SERVICE);
-        String mobile_id = getMobileSubscribeId();
-        long endTime = System.currentTimeMillis();
-        long startTime = getInstallationTime();
-        try {
-            NetworkStats.Bucket mobileBucket = networkStatsManager.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, mobile_id, startTime, endTime);
-            NetworkStats.Bucket wifiBucket = networkStatsManager.querySummaryForUser(ConnectivityManager.TYPE_WIFI, "", startTime, endTime);
-            String querySummary = context.getResources().getString(R.string.query_summary);
-            querySummary = String.format(querySummary,
-                    getDate(startTime),
-                    getDate(endTime),
-                    mobileBucket.getRxBytes(),
-                    mobileBucket.getTxBytes(),
-                    wifiBucket.getRxBytes(),
-                    wifiBucket.getTxBytes());
-            return querySummary;
-        } catch (RemoteException e) {
-            Log.e(TAG, "", e);
-        }
-        return "";
-    }
-
-    private static String getDate(long milliSeconds) {
-        // Create a DateFormatter object for displaying date in specified format.
-        SimpleDateFormat formatter = new SimpleDateFormat(FORMATTER);
-        // Create a calendar object that will convert the date and time value in milliseconds to date.
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(milliSeconds);
-        return formatter.format(calendar.getTime());
-    }
-
-    private String getMobileSubscribeId() {
-        TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
-        return tm.getSubscriberId();
-    }
-
-    private long getInstallationTime() {
-        try {
-            return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).lastUpdateTime;
-        } catch (PackageManager.NameNotFoundException e) {
-            return Long.MAX_VALUE;
-        }
-    }
 }
