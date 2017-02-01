@@ -25,9 +25,7 @@ class Helper {
 
     private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
 
-    private static final String DATA_USAGE_LIST = "data_usage_list";
     private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
-    private static final String STRING_SPLITTER = "#";
 
     private Context context;
     private Activity activity;
@@ -53,7 +51,6 @@ class Helper {
         if (activity == null) return;
         if (activity.records == null) return;
         activity.records.add(0, newQuery);
-        updateData(activity.records);
         activity.adapter.notifyDataSetChanged();
     }
 
@@ -79,26 +76,7 @@ class Helper {
         }
         return "";
     }
-
-    private void updateData(List<String> records) {
-        StringBuilder builder = new StringBuilder();
-        for (String record: records) builder.append(record).append(STRING_SPLITTER);
-        SharedPreferences pref = context.getSharedPreferences(TAG, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString(DATA_USAGE_LIST, builder.toString());
-        editor.apply();
-    }
-
-    List<String> getListOfRecords() {
-        SharedPreferences pref = context.getSharedPreferences(TAG, Context.MODE_PRIVATE);
-        String stringRecords = pref.getString(DATA_USAGE_LIST, "");
-        if (!stringRecords.isEmpty()){
-            return new ArrayList<>(Arrays.asList(stringRecords.split(STRING_SPLITTER)));
-        } else  {
-            return new ArrayList<>();
-        }
-    }
-
+    
     void addNewAlarm() {
         Intent alarmIntent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
