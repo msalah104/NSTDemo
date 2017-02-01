@@ -7,13 +7,11 @@ import android.util.Log;
 
 public class AlarmReceiver extends BroadcastReceiver {
     private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
-
     @Override
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
-        if (Activity.resumed != null) {
-            Activity.resumed.addNewAlarm();
-            Activity.resumed.addNewQuery();
-        }
+        if (Activity.resumed == null) return;
+        Activity.resumed.addNewAlarm();
+        Activity.resumed.addNewQuery();
     }
 }

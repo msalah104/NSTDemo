@@ -131,7 +131,7 @@ public class  Activity extends android.app.Activity {
 
     private String queryForDataUsage() {
         NetworkStatsManager networkStatsManager = (NetworkStatsManager) getSystemService(Context.NETWORK_STATS_SERVICE);
-        String mobile_id = getMobileSubscribeId();
+        String mobile_id = getSystemService(TelephonyManager.class).getSubscriberId();
         long endTime = System.currentTimeMillis();
         long startTime = getInstallationTime();
         try {
@@ -161,11 +161,6 @@ public class  Activity extends android.app.Activity {
         return formatter.format(calendar.getTime());
     }
 
-    private String getMobileSubscribeId() {
-        TelephonyManager tm = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
-        return tm.getSubscriberId();
-    }
-
     private long getInstallationTime() {
         try {
             return getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
@@ -173,6 +168,4 @@ public class  Activity extends android.app.Activity {
             return Long.MAX_VALUE;
         }
     }
-
-
 }
