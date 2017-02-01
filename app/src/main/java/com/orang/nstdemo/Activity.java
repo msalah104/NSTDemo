@@ -1,6 +1,8 @@
 package com.orang.nstdemo;
 
 import android.Manifest;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -16,7 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class  Activity extends android.app.Activity {
-
     private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
 
     private static final int PERMISSION_ID = 1;
@@ -27,6 +28,7 @@ public class  Activity extends android.app.Activity {
     ListView listView;
     ArrayAdapter<String> adapter;
     List<String> records;
+    static Activity resumed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,9 +50,16 @@ public class  Activity extends android.app.Activity {
     @Override
     protected void onResume() {
         super.onResume();
+        resumed = this;
         if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
             requestPermissions(new String[] {Manifest.permission.READ_PHONE_STATE}, PERMISSION_ID );
         }
+    }
+
+    @Override
+    protected void onPause() {
+        resumed = null;
+        super.onResume();
     }
 
     @Override
@@ -79,7 +88,7 @@ public class  Activity extends android.app.Activity {
         if (requestCode == PERMISSION_ID) {
             helper.setActivity(this);
             helper.addNewQuery();
-            helper.addNewAlarm();
+            addNewAlarm();
         }
     }
 
@@ -100,5 +109,12 @@ public class  Activity extends android.app.Activity {
         SharedPreferences.Editor editor = pref.edit();
         editor.putString(DATA_USAGE_LIST, builder.toString());
         editor.apply();
+    }
+
+    void addNewAlarm() {
+        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
+        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pendingIntent);
     }
 }
