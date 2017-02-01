@@ -56,22 +56,23 @@ class Helper {
             ((Activity) context).listView.setAdapter(((Activity)context).adapter);
         }
     }
-    
+
     private String queryForDataUsage() {
         NetworkStatsManager networkStatsManager = (NetworkStatsManager) context.getSystemService(Context.NETWORK_STATS_SERVICE);
         String mobile_id = getMobileSubscribeId();
         long endTime = System.currentTimeMillis();
         long startTime = getInstallationTime();
         try {
-            NetworkStats.Bucket mobileUserQueryBucket = networkStatsManager.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, mobile_id, startTime, endTime);
-            NetworkStats.Bucket wifiUserQueryBucket = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_WIFI, "", startTime, endTime);
+            NetworkStats.Bucket mobileBucket = networkStatsManager.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, mobile_id, startTime, endTime);
+            NetworkStats.Bucket wifiBucket = networkStatsManager.querySummaryForUser(ConnectivityManager.TYPE_WIFI, "", startTime, endTime);
             String querySummary = context.getResources().getString(R.string.query_summary);
-            querySummary = String.format(querySummary, mobileUserQueryBucket.getRxBytes(),
-                    mobileUserQueryBucket.getTxBytes(),
-                    wifiUserQueryBucket.getRxBytes(),
-                    wifiUserQueryBucket.getTxBytes(),
+            querySummary = String.format(querySummary,
                     getDate(startTime),
-                    getDate(endTime));
+                    getDate(endTime),
+                    mobileBucket.getRxBytes(),
+                    mobileBucket.getTxBytes(),
+                    wifiBucket.getRxBytes(),
+                    wifiBucket.getTxBytes());
             return querySummary;
         } catch (RemoteException e) {
             Log.e(TAG, "", e);
