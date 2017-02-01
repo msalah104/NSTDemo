@@ -1,4 +1,4 @@
-package com.orang.nstdemo;
+package com.orange.nstdemo;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

@@ -1,4 +1,4 @@
-package com.orang.nstdemo;
+package com.orange.nstdemo;
 
 import android.Manifest;
 import android.app.AlarmManager;
