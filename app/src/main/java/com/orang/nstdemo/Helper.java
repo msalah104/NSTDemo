@@ -11,6 +11,7 @@ import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.RemoteException;
 import android.telephony.TelephonyManager;
+import android.util.Log;
 import android.widget.ArrayAdapter;
 
 import java.text.SimpleDateFormat;
@@ -20,12 +21,11 @@ import java.util.Calendar;
 
 class Helper {
 
+    private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
+
     private static final String DATA_USAGE_LIST = "data_usage_list";
     private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
-    private static final String EMPTY_STRING = "";
-    private static final String TAG = "MainActivity";
     private static final String STRING_SPLITTER = "#";
-    private static final int ALARM_INTERVAL = 5000;
 
     private Context context;
     private Activity activity;
@@ -35,18 +35,14 @@ class Helper {
         this.context = context;
     }
 
-    public static Helper getSharedInstance (Context context) {
+    static Helper getSharedInstance(Context context) {
         if (sharedInstance == null) {
             sharedInstance = new Helper(context);
         }
         return sharedInstance;
     }
 
-    public Activity getActivity() {
-        return activity;
-    }
-
-    public void setActivity(Activity activity) {
+    void setActivity(Activity activity) {
         this.activity = activity;
     }
 
@@ -55,23 +51,20 @@ class Helper {
         String [] records = getListOfRecords();
         records = appendValue(records, newQuery);
         updateData(records);
-        if (activity != null){
-            ((Activity)context).adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, android.R.id.text1, records);
-            ((Activity)context).listView.setAdapter(((Activity)context).adapter);
+        if (activity != null) {
+            ((Activity) context).adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, android.R.id.text1, records);
+            ((Activity) context).listView.setAdapter(((Activity)context).adapter);
         }
     }
-
-
+    
     private String queryForDataUsage() {
-        NetworkStatsManager networkStatsManager = (NetworkStatsManager) context.getSystemService
-            (Context.NETWORK_STATS_SERVICE);
+        NetworkStatsManager networkStatsManager = (NetworkStatsManager) context.getSystemService(Context.NETWORK_STATS_SERVICE);
         String mobile_id = getMobileSubscribeId();
         long endTime = System.currentTimeMillis();
         long startTime = getInstallationTime();
         try {
             NetworkStats.Bucket mobileUserQueryBucket = networkStatsManager.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, mobile_id, startTime, endTime);
-            NetworkStats.Bucket wifiUserQueryBucket = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_WIFI, EMPTY_STRING, startTime, endTime);
-
+            NetworkStats.Bucket wifiUserQueryBucket = networkStatsManager.querySummaryForDevice(ConnectivityManager.TYPE_WIFI, "", startTime, endTime);
             String querySummary = context.getResources().getString(R.string.query_summary);
             querySummary = String.format(querySummary, mobileUserQueryBucket.getRxBytes(),
                     mobileUserQueryBucket.getTxBytes(),
@@ -79,11 +72,9 @@ class Helper {
                     wifiUserQueryBucket.getTxBytes(),
                     getDate(startTime),
                     getDate(endTime));
-
             return querySummary;
-
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, "", e);
         }
         return "";
     }
@@ -99,10 +90,9 @@ class Helper {
 
     String [] getListOfRecords () {
         SharedPreferences pref = context.getSharedPreferences(TAG, Context.MODE_PRIVATE);
-        String stringRecords = pref.getString(DATA_USAGE_LIST, EMPTY_STRING);
+        String stringRecords = pref.getString(DATA_USAGE_LIST, "");
         if (!stringRecords.isEmpty()){
-            String [] records = stringRecords.split(STRING_SPLITTER);
-            return records;
+            return stringRecords.split(STRING_SPLITTER);
         } else  {
             return new String[] {};
         }
@@ -111,11 +101,8 @@ class Helper {
     void addNewAlarm() {
         Intent alarmIntent = new Intent(context, AlarmReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
-
         AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-
-        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), ALARM_INTERVAL, pendingIntent);
+        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pendingIntent);
     }
 
     private String[] appendValue(String[] obj, String newObj) {
@@ -143,9 +130,8 @@ class Helper {
         try {
             return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).lastUpdateTime;
         } catch (PackageManager.NameNotFoundException e) {
-            e.printStackTrace();
+            return Long.MAX_VALUE;
         }
-        return 0;
     }
 
 }
