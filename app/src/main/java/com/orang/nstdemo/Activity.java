@@ -14,6 +14,8 @@ import java.util.List;
 
 public class  Activity extends android.app.Activity {
 
+    private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
+
     private static final int PERMISSION_ID = 1;
 
     Helper helper;
