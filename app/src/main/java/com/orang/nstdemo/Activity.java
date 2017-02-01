@@ -19,8 +19,9 @@ public class  Activity extends android.app.Activity {
     private static final int PERMISSION_ID = 1;
 
     Helper helper;
-    ListView listView ;
+    ListView listView;
     ArrayAdapter<String> adapter;
+    List<String> records;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,9 +31,8 @@ public class  Activity extends android.app.Activity {
         helper = Helper.getSharedInstance(this);
 
         listView = (ListView) findViewById(R.id.list);
-        adapter = new ArrayAdapter<>(this,
-                android.R.layout.simple_list_item_1, android.R.id.text1, helper.getListOfRecords());
-
+        records = helper.getListOfRecords();
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, records);
         listView.setAdapter(adapter);
     }
 

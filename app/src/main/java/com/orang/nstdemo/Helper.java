@@ -18,6 +18,8 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.List;
 
 class Helper {
 
@@ -48,13 +50,11 @@ class Helper {
 
     void addNewQuery() {
         String newQuery = queryForDataUsage();
-        String [] records = getListOfRecords();
-        records = appendValue(records, newQuery);
-        updateData(records);
-        if (activity != null) {
-            ((Activity) context).adapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, android.R.id.text1, records);
-            ((Activity) context).listView.setAdapter(((Activity)context).adapter);
-        }
+        if (activity == null) return;
+        if (activity.records == null) return;
+        activity.records.add(0, newQuery);
+        updateData(activity.records);
+        activity.adapter.notifyDataSetChanged();
     }
 
     private String queryForDataUsage() {
@@ -80,7 +80,7 @@ class Helper {
         return "";
     }
 
-    private void updateData(String[] records) {
+    private void updateData(List<String> records) {
         StringBuilder builder = new StringBuilder();
         for (String record: records) builder.append(record).append(STRING_SPLITTER);
         SharedPreferences pref = context.getSharedPreferences(TAG, Context.MODE_PRIVATE);
@@ -89,13 +89,13 @@ class Helper {
         editor.apply();
     }
 
-    String [] getListOfRecords () {
+    List<String> getListOfRecords() {
         SharedPreferences pref = context.getSharedPreferences(TAG, Context.MODE_PRIVATE);
         String stringRecords = pref.getString(DATA_USAGE_LIST, "");
         if (!stringRecords.isEmpty()){
-            return stringRecords.split(STRING_SPLITTER);
+            return new ArrayList<>(Arrays.asList(stringRecords.split(STRING_SPLITTER)));
         } else  {
-            return new String[] {};
+            return new ArrayList<>();
         }
     }
 
@@ -104,12 +104,6 @@ class Helper {
         PendingIntent pendingIntent = PendingIntent.getBroadcast(context, 0, alarmIntent, 0);
         AlarmManager manager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pendingIntent);
-    }
-
-    private String[] appendValue(String[] obj, String newObj) {
-        ArrayList<String> temp = new ArrayList<>(Arrays.asList(obj));
-        temp.add(0, newObj);
-        return temp.toArray(new String[temp.size()]);
     }
 
     private static String getDate(long milliSeconds) {
