@@ -3,8 +3,11 @@ package com.orange.nstdemo;
 import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.app.usage.NetworkStats;
 import android.app.usage.NetworkStatsManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,6 +31,7 @@ import java.util.List;
 public class  Activity extends android.app.Activity {
     private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
 
+    private static final int JOB_ID = 0;
     private static final int PERMISSION_ID = 1;
     private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
 
@@ -85,15 +89,21 @@ public class  Activity extends android.app.Activity {
             addNewQuery();
             addNewQuery();
             adapter.notifyDataSetChanged();
-            addNewAlarm();
-        }
-    }
+            JobScheduler jobScheduler = getSystemService(JobScheduler.class);
+            JobInfo jobInfo = jobScheduler.getPendingJob(JOB_ID);
+            if (jobInfo == null) {
+                jobInfo = new JobInfo.Builder(JOB_ID, new ComponentName(this, JobService.class))
+                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                    .setPeriodic(5000)
+                    .build();
+                if (jobScheduler.schedule(jobInfo) <= 0) {
+                    Log.e(TAG, new Object(){}.getClass().getEnclosingMethod().getName() + ": Job failed");
 
-    void addNewAlarm() {
-        Intent alarmIntent = new Intent(this, AlarmReceiver.class);
-        PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, alarmIntent, 0);
-        AlarmManager manager = (AlarmManager) getSystemService(Context.ALARM_SERVICE);
-        manager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 5000, pendingIntent);
+                } else {
+                    Log.i(TAG, new Object(){}.getClass().getEnclosingMethod().getName() + ": Job Scheduled");
+                }
+            }
+        }
     }
 
     void addNewQuery() {
