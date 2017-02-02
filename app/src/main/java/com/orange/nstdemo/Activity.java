@@ -29,27 +29,26 @@ public class  Activity extends android.app.Activity {
     private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
 
     private static final int PERMISSION_ID = 1;
-    private static final String DATA_USAGE_LIST = "data_usage_list";
-    private static final String STRING_SPLITTER = "#";
     private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
 
     ListView listView;
-    ArrayAdapter<String> adapter;
-    List<String> records;
+    NetworkStatsAdapter adapter;
+    List<Pair<NetworkStats.Bucket>> buckets;
     static Activity resumed;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity);
+        setTitle(getDate(getInstallationTime()));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         listView = (ListView) findViewById(R.id.list);
-        records = getListOfRecords();
-        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, android.R.id.text1, records);
+        if (buckets == null) buckets = new ArrayList<>();
+        adapter = new NetworkStatsAdapter(this, buckets);
         listView.setAdapter(adapter);
     }
 
@@ -69,19 +68,11 @@ public class  Activity extends android.app.Activity {
     }
 
     @Override
-    protected void onStop() {
-        updateData(records);
-        super.onStop();
-    }
-
-    @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (requestCode == PERMISSION_ID && grantResults[0] ==
-                    PackageManager.PERMISSION_GRANTED) {
+            if (requestCode == PERMISSION_ID && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Intent intent = new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS);
                 this.startActivityForResult(intent, PERMISSION_ID);
-
             }
         }
     }
@@ -92,27 +83,10 @@ public class  Activity extends android.app.Activity {
         // Assuming user has granted the uage permission
         if (requestCode == PERMISSION_ID) {
             addNewQuery();
+            addNewQuery();
+            adapter.notifyDataSetChanged();
             addNewAlarm();
         }
-    }
-
-    List<String> getListOfRecords() {
-        SharedPreferences pref = getSharedPreferences(TAG, Context.MODE_PRIVATE);
-        String stringRecords = pref.getString(DATA_USAGE_LIST, "");
-        if (!stringRecords.isEmpty()){
-            return new ArrayList<>(Arrays.asList(stringRecords.split(STRING_SPLITTER)));
-        } else  {
-            return new ArrayList<>();
-        }
-    }
-
-    private void updateData(List<String> records) {
-        StringBuilder builder = new StringBuilder();
-        for (String record: records) builder.append(record).append(STRING_SPLITTER);
-        SharedPreferences pref = getSharedPreferences(TAG, Context.MODE_PRIVATE);
-        SharedPreferences.Editor editor = pref.edit();
-        editor.putString(DATA_USAGE_LIST, builder.toString());
-        editor.apply();
     }
 
     void addNewAlarm() {
@@ -123,36 +97,20 @@ public class  Activity extends android.app.Activity {
     }
 
     void addNewQuery() {
-        String newQuery = queryForDataUsage();
-        if (records == null) return;
-        records.add(0, newQuery);
-        adapter.notifyDataSetChanged();
-    }
-
-    private String queryForDataUsage() {
-        NetworkStatsManager networkStatsManager = (NetworkStatsManager) getSystemService(Context.NETWORK_STATS_SERVICE);
-        String mobile_id = getSystemService(TelephonyManager.class).getSubscriberId();
-        long endTime = System.currentTimeMillis();
-        long startTime = getInstallationTime();
+        NetworkStatsManager netStatsMgr = getSystemService(NetworkStatsManager.class);
+        String id = getSystemService(TelephonyManager.class).getSubscriberId();
+        final long start = getInstallationTime();
+        final long end = System.currentTimeMillis();
         try {
-            NetworkStats.Bucket mobileBucket = networkStatsManager.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, mobile_id, startTime, endTime);
-            NetworkStats.Bucket wifiBucket = networkStatsManager.querySummaryForUser(ConnectivityManager.TYPE_WIFI, "", startTime, endTime);
-            String querySummary = getResources().getString(R.string.query_summary);
-            querySummary = String.format(querySummary,
-                    getDate(startTime),
-                    getDate(endTime),
-                    mobileBucket.getRxBytes(),
-                    mobileBucket.getTxBytes(),
-                    wifiBucket.getRxBytes(),
-                    wifiBucket.getTxBytes());
-            return querySummary;
+            NetworkStats.Bucket mobile = netStatsMgr.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, id, start, end);
+            NetworkStats.Bucket wifi = netStatsMgr.querySummaryForUser(ConnectivityManager.TYPE_WIFI, "", start, end);
+            buckets.add(0, new Pair<>(mobile, wifi));
         } catch (RemoteException e) {
             Log.e(TAG, "", e);
         }
-        return "";
     }
 
-    private static String getDate(long milliSeconds) {
+    static String getDate(long milliSeconds) {
         // Create a DateFormatter object for displaying date in specified format.
         SimpleDateFormat formatter = new SimpleDateFormat(FORMATTER);
         // Create a calendar object that will convert the date and time value in milliseconds to date.

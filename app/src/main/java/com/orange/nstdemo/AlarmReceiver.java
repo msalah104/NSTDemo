@@ -11,7 +11,8 @@ public class AlarmReceiver extends BroadcastReceiver {
     public void onReceive(Context context, Intent intent) {
         Log.d(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
         if (Activity.resumed == null) return;
-        Activity.resumed.addNewAlarm();
         Activity.resumed.addNewQuery();
+        Activity.resumed.adapter.notifyDataSetChanged();
+        Activity.resumed.addNewAlarm();
     }
 }
