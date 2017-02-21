@@ -2,6 +2,7 @@ package com.orange.nstdemo;
 
 import android.Manifest;
 import android.app.AlarmManager;
+import android.app.DownloadManager;
 import android.app.PendingIntent;
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
@@ -19,6 +20,8 @@ import android.os.RemoteException;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
@@ -40,6 +43,22 @@ public class  Activity extends android.app.Activity {
     List<Pair<NetworkStats.Bucket>> buckets;
     static Activity resumed;
 
+     public boolean onCreateOptionsMenu(Menu menu) {
+         getMenuInflater().inflate(R.menu.options, menu);
+         return true;
+     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+    switch (item.getItemId()) {
+    case R.id.add:
+        addNewQuery();
+        adapter.notifyDataSetChanged();
+        return true;
+    default:
+        return super.onOptionsItemSelected(item);
+    }
+}
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -81,29 +100,31 @@ public class  Activity extends android.app.Activity {
         }
     }
 
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         // Assuming user has granted the uage permission
-        if (requestCode == PERMISSION_ID) {
-            addNewQuery();
-            addNewQuery();
-            adapter.notifyDataSetChanged();
-            JobScheduler jobScheduler = getSystemService(JobScheduler.class);
-            JobInfo jobInfo = jobScheduler.getPendingJob(JOB_ID);
-            if (jobInfo == null) {
-                jobInfo = new JobInfo.Builder(JOB_ID, new ComponentName(this, JobService.class))
-                    .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                    .setPeriodic(5000)
-                    .build();
-                if (jobScheduler.schedule(jobInfo) <= 0) {
-                    Log.e(TAG, new Object(){}.getClass().getEnclosingMethod().getName() + ": Job failed");
+        if (requestCode != PERMISSION_ID) return;
+        addNewQuery();
+        addNewQuery();
+        adapter.notifyDataSetChanged();
+        /*
+        JobScheduler jobScheduler = getSystemService(JobScheduler.class);
+        JobInfo jobInfo = jobScheduler.getPendingJob(JOB_ID);
+        if (jobInfo == null) {
+            jobInfo = new JobInfo.Builder(JOB_ID, new ComponentName(this, JobService.class))
+                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
+                .setPeriodic(5000)
+                .build();
+            if (jobScheduler.schedule(jobInfo) <= 0) {
+                Log.e(TAG, new Object(){}.getClass().getEnclosingMethod().getName() + ": Job failed");
 
-                } else {
-                    Log.i(TAG, new Object(){}.getClass().getEnclosingMethod().getName() + ": Job Scheduled");
-                }
+            } else {
+                Log.i(TAG, new Object(){}.getClass().getEnclosingMethod().getName() + ": Job Scheduled");
             }
         }
+        */
     }
 
     void addNewQuery() {

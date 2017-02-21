@@ -13,12 +13,20 @@
         <activity android:name=".Activity" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <service android:name=".JobService"
                  android:exported="true"
             android:permission="android.permission.BIND_JOB_SERVICE"/>
+
+        <receiver
+            android:name=".BroadcastReceiver"
+            android:enabled="true"
+            android:exported="true">
+        </receiver>
     </application>
 
 </manifest>
