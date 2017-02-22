@@ -19,8 +19,8 @@ class NetworkStatsBucket {
         this.mobile = mobile;
         this.wifi = wifi;
     }
-    NetworkStats.Bucket getMobileBucket() { return mobile; }
-    NetworkStats.Bucket getWifiBucket() { return wifi; }
+    NetworkStats.Bucket getMobile() { return mobile; }
+    NetworkStats.Bucket getWifi() { return wifi; }
     static List<NetworkStatsBucket> getBuckets() { return buckets; }
     static void addNew(final Context context) {
         Log.i(TAG, new Object(){}.getClass().getEnclosingMethod().getName());

@@ -31,27 +31,27 @@ class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
             convertView = layoutInflater.inflate(android.R.layout.simple_list_item_2, null);
         }
 
-        NetworkStatsBucket bucket0 = getItem(position);
-        NetworkStatsBucket bucket1 = getItem(position < getCount() - 1 ? position + 1 : position);
+        NetworkStatsBucket newBucket = getItem(position);
+        NetworkStatsBucket oldBucket = getItem(position < getCount() - 1 ? position + 1 : position);
 
-        if (bucket0 == null) return convertView;
+        if (newBucket == null) return convertView;
 
         TextView textView = (TextView) convertView.findViewById(android.R.id.text1);
-        String string = String.format(
+        String newString = String.format(
             getContext().getResources().getString(R.string.query_summary),
             getCount() - position - 1,
-            formatDate(bucket0.getMobileBucket().getEndTimeStamp()),
-            bucket0.getMobileBucket().getRxBytes(),
-            bucket0.getMobileBucket().getTxBytes(),
-            bucket0.getWifiBucket().getRxBytes(),
-            bucket0.getWifiBucket().getTxBytes());
-        SpannableString span = new SpannableString(string);
+            formatDate(newBucket.getMobile().getEndTimeStamp()),
+            newBucket.getMobile().getRxBytes(),
+            newBucket.getMobile().getTxBytes(),
+            newBucket.getWifi().getRxBytes(),
+            newBucket.getWifi().getTxBytes());
+        SpannableString newSpan = new SpannableString(newString);
         int i = 0;
-        i = colorize(string, span, i, bucket0.getMobileBucket().getRxBytes(), bucket1.getMobileBucket().getRxBytes());
-        i = colorize(string, span, i, bucket0.getMobileBucket().getTxBytes(), bucket1.getMobileBucket().getTxBytes());
-        i = colorize(string, span, i, bucket0.getWifiBucket().getRxBytes(), bucket1.getWifiBucket().getRxBytes());
-        i = colorize(string, span, i, bucket0.getWifiBucket().getTxBytes(), bucket1.getWifiBucket().getTxBytes());
-        textView.setText(span);
+        i = colorize(newString, newSpan, i, newBucket.getMobile().getRxBytes(), oldBucket.getMobile().getRxBytes());
+        i = colorize(newString, newSpan, i, newBucket.getMobile().getTxBytes(), oldBucket.getMobile().getTxBytes());
+        i = colorize(newString, newSpan, i, newBucket.getWifi().getRxBytes(), oldBucket.getWifi().getRxBytes());
+        i = colorize(newString, newSpan, i, newBucket.getWifi().getTxBytes(), oldBucket.getWifi().getTxBytes());
+        textView.setText(newSpan);
         return convertView;
     }
 
