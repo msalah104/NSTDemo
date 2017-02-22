@@ -23,7 +23,7 @@ class NetworkStatsBucket {
     NetworkStats.Bucket getWifiBucket() { return wifi; }
     static List<NetworkStatsBucket> getBuckets() { return buckets; }
     static void addNew(final Context context) {
-        Log.d(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
+        Log.i(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
         NetworkStatsManager netStatsMgr = context.getSystemService(NetworkStatsManager.class);
         String id = context.getSystemService(TelephonyManager.class).getSubscriberId();
         final long start = Activity.getInstallationTime(context);

@@ -23,8 +23,8 @@ public class  Activity extends android.app.ListActivity {
         super.onCreate(savedInstanceState);
         setTitle(NetworkStatsAdapter.formatDate(getInstallationTime(this)));
         Intent intent = new Intent(getApplicationContext(), BroadcastReceiver.class);
-        final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        getSystemService(AlarmManager.class).setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000, pendingIntent);
+        final PendingIntent pending = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        getSystemService(AlarmManager.class).setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000, pending);
     }
 
     @Override
@@ -57,7 +57,7 @@ public class  Activity extends android.app.ListActivity {
         state = getListView().onSaveInstanceState();
         super.onPause();
     }
-
+    
     static long getInstallationTime(final Context context) {
         try {
             return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).lastUpdateTime;
