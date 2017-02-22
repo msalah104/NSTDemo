@@ -2,6 +2,7 @@ package com.orange.nstdemo;
 
 import android.Manifest;
 import android.app.AlarmManager;
+import android.app.AppOpsManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -10,6 +11,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.os.Process;
 import android.provider.Settings;
 import android.widget.BaseAdapter;
 
@@ -50,6 +52,12 @@ public class ListActivity extends android.app.ListActivity {
         super.onResume();
         if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
             requestPermissions(new String[] {Manifest.permission.READ_PHONE_STATE}, 0);
+            return;
+        }
+        AppOpsManager appOpsManager = getSystemService(AppOpsManager.class);
+        int packageUsageStats = appOpsManager.checkOpNoThrow("android:get_usage_stats", Process.myUid(), getPackageName());
+        if (packageUsageStats != AppOpsManager.MODE_ALLOWED) {
+            startActivity(new Intent(Settings.ACTION_USAGE_ACCESS_SETTINGS));
             return;
         }
         if (NetworkStatsBucket.none()) {
