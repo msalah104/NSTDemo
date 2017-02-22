@@ -20,7 +20,6 @@
 
         <service android:name=".IntentService"/>
 
-        <receiver android:name=".BroadcastReceiver"/>
     </application>
 
 </manifest>

@@ -3,6 +3,7 @@ package com.orange.nstdemo;
 import android.Manifest;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -16,7 +17,12 @@ public class ListActivity extends android.app.ListActivity {
 
     private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
     private static final IntentFilter INTENT_FILTER = new IntentFilter("foo");
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver(this::onReceive);
+    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
+        }
+    };
 
     private Parcelable state;
 
