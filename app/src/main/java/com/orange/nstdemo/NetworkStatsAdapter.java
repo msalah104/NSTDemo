@@ -16,7 +16,7 @@ import java.util.Calendar;
 
 class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
 
-    //private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
+    private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
     private static final ForegroundColorSpan RED = new ForegroundColorSpan(Color.RED);
     private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
 
