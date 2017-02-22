@@ -9,27 +9,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.os.RemoteException;
-import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.widget.BaseAdapter;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 
 public class  Activity extends android.app.ListActivity {
+
     private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
 
     private static final int PERMISSION_ID = 1;
-    private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
 
     static List<Pair<NetworkStats.Bucket>> buckets; // Mobile * Wi-Fi Buckets
     Parcelable state;
@@ -38,7 +32,7 @@ public class  Activity extends android.app.ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
         super.onCreate(savedInstanceState);
-        setTitle(getDate(getInstallationTime(this)));
+        setTitle(NetworkStatsAdapter.formatDate(getInstallationTime(this)));
         Intent intent = new Intent(getApplicationContext(), BroadcastReceiver.class);
         final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         getSystemService(AlarmManager.class).setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000, pendingIntent);
@@ -69,20 +63,10 @@ public class  Activity extends android.app.ListActivity {
         ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
     }
 
-
     @Override
     protected void onPause() {
         state = getListView().onSaveInstanceState();
         super.onPause();
-    }
-
-    static String getDate(long milliSeconds) {
-        // Create a DateFormatter object for displaying date in specified format.
-        SimpleDateFormat formatter = new SimpleDateFormat(FORMATTER);
-        // Create a calendar object that will convert the date and time value in milliseconds to date.
-        Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(milliSeconds);
-        return formatter.format(calendar.getTime());
     }
 
     static void addNewQuery(final Context context) {
