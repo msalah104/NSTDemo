@@ -31,31 +31,13 @@ public class  Activity extends android.app.ListActivity {
     private static final int PERMISSION_ID = 1;
     private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
 
-    static List<Pair<NetworkStats.Bucket>> buckets;
+    static List<Pair<NetworkStats.Bucket>> buckets; // Mobile * Wi-Fi Buckets
     Parcelable state;
-
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.options, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.add:
-                addNewQuery(this);
-                ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
-                return true;
-            default:
-                return super.onOptionsItemSelected(item);
-        }
-    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity);
         setTitle(getDate(getInstallationTime(this)));
         Intent intent = new Intent(getApplicationContext(), BroadcastReceiver.class);
         final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -68,11 +50,7 @@ public class  Activity extends android.app.ListActivity {
         if (state != null) {
             getListView().onRestoreInstanceState(state);
         } else {
-            if (buckets == null) {
-                buckets = new ArrayList<>();
-                addNewQuery(this);
-                addNewQuery(this);
-            }
+            if (buckets == null) buckets = new ArrayList<>();
             setListAdapter(new NetworkStatsAdapter(this, buckets));
         }
     }
@@ -83,6 +61,10 @@ public class  Activity extends android.app.ListActivity {
         if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
             requestPermissions(new String[] {Manifest.permission.READ_PHONE_STATE}, PERMISSION_ID );
             return;
+        }
+        if (buckets.size() == 0) {
+            addNewQuery(this);
+            addNewQuery(this);
         }
         ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
     }
