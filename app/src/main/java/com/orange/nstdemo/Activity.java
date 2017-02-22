@@ -2,77 +2,76 @@ package com.orange.nstdemo;
 
 import android.Manifest;
 import android.app.AlarmManager;
-import android.app.DownloadManager;
 import android.app.PendingIntent;
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
 import android.app.usage.NetworkStats;
 import android.app.usage.NetworkStatsManager;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
+import android.widget.BaseAdapter;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 
-public class  Activity extends android.app.Activity {
+public class  Activity extends android.app.ListActivity {
     private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
 
-    private static final int JOB_ID = 0;
     private static final int PERMISSION_ID = 1;
     private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
 
-    ListView listView;
-    NetworkStatsAdapter adapter;
-    List<Pair<NetworkStats.Bucket>> buckets;
+    static List<Pair<NetworkStats.Bucket>> buckets;
     static Activity resumed;
 
-     public boolean onCreateOptionsMenu(Menu menu) {
-         getMenuInflater().inflate(R.menu.options, menu);
-         return true;
-     }
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.options, menu);
+        return true;
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-    switch (item.getItemId()) {
-    case R.id.add:
-        addNewQuery();
-        adapter.notifyDataSetChanged();
-        return true;
-    default:
-        return super.onOptionsItemSelected(item);
+        switch (item.getItemId()) {
+            case R.id.add:
+                addNewQuery(this);
+                ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
-}
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        Log.d(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity);
-        setTitle(getDate(getInstallationTime()));
+        setTitle(getDate(getInstallationTime(this)));
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        listView = (ListView) findViewById(R.id.list);
-        if (buckets == null) buckets = new ArrayList<>();
-        adapter = new NetworkStatsAdapter(this, buckets);
-        listView.setAdapter(adapter);
+        if (state != null) {
+            getListView().onRestoreInstanceState(state);
+        } else {
+            if (buckets == null) buckets = new ArrayList<>();
+            setListAdapter(new NetworkStatsAdapter(this, buckets));
+        }
+        Intent intent = new Intent(getApplicationContext(), BroadcastReceiver.class);
+        final PendingIntent pendingIntent = PendingIntent.getBroadcast(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        AlarmManager alarmManager = getSystemService(AlarmManager.class);
+        alarmManager.setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000, pendingIntent);
     }
 
     @Override
@@ -82,11 +81,16 @@ public class  Activity extends android.app.Activity {
         if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
             requestPermissions(new String[] {Manifest.permission.READ_PHONE_STATE}, PERMISSION_ID );
         }
+        ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
     }
+
+    Parcelable state;
 
     @Override
     protected void onPause() {
+        Log.d(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
         resumed = null;
+        state = getListView().onSaveInstanceState();
         super.onResume();
     }
 
@@ -106,31 +110,15 @@ public class  Activity extends android.app.Activity {
         super.onActivityResult(requestCode, resultCode, data);
         // Assuming user has granted the uage permission
         if (requestCode != PERMISSION_ID) return;
-        addNewQuery();
-        addNewQuery();
-        adapter.notifyDataSetChanged();
-        /*
-        JobScheduler jobScheduler = getSystemService(JobScheduler.class);
-        JobInfo jobInfo = jobScheduler.getPendingJob(JOB_ID);
-        if (jobInfo == null) {
-            jobInfo = new JobInfo.Builder(JOB_ID, new ComponentName(this, JobService.class))
-                .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY)
-                .setPeriodic(5000)
-                .build();
-            if (jobScheduler.schedule(jobInfo) <= 0) {
-                Log.e(TAG, new Object(){}.getClass().getEnclosingMethod().getName() + ": Job failed");
-
-            } else {
-                Log.i(TAG, new Object(){}.getClass().getEnclosingMethod().getName() + ": Job Scheduled");
-            }
-        }
-        */
+        addNewQuery(this);
+        addNewQuery(this);
+        ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
     }
 
-    void addNewQuery() {
-        NetworkStatsManager netStatsMgr = getSystemService(NetworkStatsManager.class);
-        String id = getSystemService(TelephonyManager.class).getSubscriberId();
-        final long start = getInstallationTime();
+    static void addNewQuery(final Context context) {
+        NetworkStatsManager netStatsMgr = context.getSystemService(NetworkStatsManager.class);
+        String id = context.getSystemService(TelephonyManager.class).getSubscriberId();
+        final long start = getInstallationTime(context);
         final long end = System.currentTimeMillis();
         try {
             NetworkStats.Bucket mobile = netStatsMgr.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, id, start, end);
@@ -150,9 +138,9 @@ public class  Activity extends android.app.Activity {
         return formatter.format(calendar.getTime());
     }
 
-    private long getInstallationTime() {
+    private static long getInstallationTime(final Context context) {
         try {
-            return getPackageManager().getPackageInfo(getPackageName(), 0).lastUpdateTime;
+            return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).lastUpdateTime;
         } catch (PackageManager.NameNotFoundException e) {
             return Long.MAX_VALUE;
         }

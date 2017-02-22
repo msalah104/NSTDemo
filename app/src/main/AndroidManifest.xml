@@ -18,15 +18,9 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".JobService"
-                 android:exported="true"
-            android:permission="android.permission.BIND_JOB_SERVICE"/>
+        <service android:name=".IntentService"/>
 
-        <receiver
-            android:name=".BroadcastReceiver"
-            android:enabled="true"
-            android:exported="true">
-        </receiver>
+        <receiver android:name=".BroadcastReceiver"/>
     </application>
 
 </manifest>
