@@ -16,7 +16,6 @@ import java.util.Calendar;
 
 class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
 
-    private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
     private static final ForegroundColorSpan RED = new ForegroundColorSpan(Color.RED);
     private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
 
@@ -32,26 +31,26 @@ class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
             convertView = layoutInflater.inflate(android.R.layout.simple_list_item_2, null);
         }
 
-        NetworkStatsBucket networkStatsBucket0 = getItem(position);
-        NetworkStatsBucket networkStatsBucket1 = getItem(position < getCount() - 1 ? position + 1 : position);
+        NetworkStatsBucket bucket0 = getItem(position);
+        NetworkStatsBucket bucket1 = getItem(position < getCount() - 1 ? position + 1 : position);
 
-        if (networkStatsBucket0 == null) return convertView;
+        if (bucket0 == null) return convertView;
 
         TextView textView = (TextView) convertView.findViewById(android.R.id.text1);
         String string = String.format(
             getContext().getResources().getString(R.string.query_summary),
             getCount() - position - 1,
-            formatDate(networkStatsBucket0.getMobileBucket().getEndTimeStamp()),
-            networkStatsBucket0.getMobileBucket().getRxBytes(),
-            networkStatsBucket0.getMobileBucket().getTxBytes(),
-            networkStatsBucket0.getWifiBucket().getRxBytes(),
-            networkStatsBucket0.getWifiBucket().getTxBytes());
+            formatDate(bucket0.getMobileBucket().getEndTimeStamp()),
+            bucket0.getMobileBucket().getRxBytes(),
+            bucket0.getMobileBucket().getTxBytes(),
+            bucket0.getWifiBucket().getRxBytes(),
+            bucket0.getWifiBucket().getTxBytes());
         SpannableString span = new SpannableString(string);
         int i = 0;
-        i = colorize(string, span, i, networkStatsBucket0.getMobileBucket().getRxBytes(), networkStatsBucket1.getMobileBucket().getRxBytes());
-        i = colorize(string, span, i, networkStatsBucket0.getMobileBucket().getTxBytes(), networkStatsBucket1.getMobileBucket().getTxBytes());
-        i = colorize(string, span, i, networkStatsBucket0.getWifiBucket().getRxBytes(), networkStatsBucket1.getWifiBucket().getRxBytes());
-        i = colorize(string, span, i, networkStatsBucket0.getWifiBucket().getTxBytes(), networkStatsBucket1.getWifiBucket().getTxBytes());
+        i = colorize(string, span, i, bucket0.getMobileBucket().getRxBytes(), bucket1.getMobileBucket().getRxBytes());
+        i = colorize(string, span, i, bucket0.getMobileBucket().getTxBytes(), bucket1.getMobileBucket().getTxBytes());
+        i = colorize(string, span, i, bucket0.getWifiBucket().getRxBytes(), bucket1.getWifiBucket().getRxBytes());
+        i = colorize(string, span, i, bucket0.getWifiBucket().getTxBytes(), bucket1.getWifiBucket().getTxBytes());
         textView.setText(span);
         return convertView;
     }

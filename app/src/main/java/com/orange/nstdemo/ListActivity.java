@@ -10,25 +10,22 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.util.Log;
+import android.provider.Settings;
 import android.widget.BaseAdapter;
 
 public class ListActivity extends android.app.ListActivity {
 
-    private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
-    private static final IntentFilter INTENT_FILTER = new IntentFilter("foo");
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
             ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
         }
     };
-
     private Parcelable state;
+    static final String UPDATE = "update";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        Log.d(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
         super.onCreate(savedInstanceState);
         setTitle(NetworkStatsAdapter.formatDate(getInstallationTime(this)));
         Intent intent = new Intent(getApplicationContext(), IntentService.class);
@@ -45,7 +42,7 @@ public class ListActivity extends android.app.ListActivity {
             if (NetworkStatsBucket.none()) NetworkStatsBucket.init(); // addNew() may lack permission here
             setListAdapter(new NetworkStatsAdapter(this));
         }
-        registerReceiver(broadcastReceiver, INTENT_FILTER);
+        registerReceiver(broadcastReceiver, new IntentFilter(UPDATE));
     }
 
     @Override
@@ -80,9 +77,5 @@ public class ListActivity extends android.app.ListActivity {
         } catch (PackageManager.NameNotFoundException e) {
             return Long.MAX_VALUE;
         }
-    }
-    public void onReceive(Context context, Intent intent) {
-        Log.d(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
-        ((BaseAdapter) getListAdapter()).notifyDataSetChanged();
     }
 }
