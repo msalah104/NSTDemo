@@ -16,7 +16,7 @@ import android.provider.Settings;
 import android.widget.BaseAdapter;
 
 public class ListActivity extends android.app.ListActivity {
-
+    private static final long INTERVAL = BuildConfig.DEBUG ? 5000 : AlarmManager.INTERVAL_FIFTEEN_MINUTES;
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -32,7 +32,7 @@ public class ListActivity extends android.app.ListActivity {
         setTitle(NetworkStatsAdapter.formatDate(getInstallationTime(this)));
         Intent intent = new Intent(getApplicationContext(), IntentService.class);
         final PendingIntent pending = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        getSystemService(AlarmManager.class).setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), 10000, pending);
+        getSystemService(AlarmManager.class).setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), INTERVAL, pending);
     }
 
     @Override
