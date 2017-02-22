@@ -23,8 +23,6 @@ public class  Activity extends android.app.ListActivity {
 
     private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
 
-    private static final int PERMISSION_ID = 1;
-
     static List<Pair<NetworkStats.Bucket>> buckets; // Mobile * Wi-Fi Buckets
     Parcelable state;
 
@@ -53,7 +51,7 @@ public class  Activity extends android.app.ListActivity {
     protected void onResume() {
         super.onResume();
         if (checkSelfPermission(Manifest.permission.READ_PHONE_STATE) == PackageManager.PERMISSION_DENIED) {
-            requestPermissions(new String[] {Manifest.permission.READ_PHONE_STATE}, PERMISSION_ID );
+            requestPermissions(new String[] {Manifest.permission.READ_PHONE_STATE}, 0);
             return;
         }
         if (buckets.size() == 0) {
