@@ -11,7 +11,7 @@ import android.os.Parcelable;
 import android.util.Log;
 import android.widget.BaseAdapter;
 
-public class  Activity extends android.app.ListActivity {
+public class ListActivity extends android.app.ListActivity {
 
     private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
 
@@ -33,7 +33,7 @@ public class  Activity extends android.app.ListActivity {
         if (state != null) {
             getListView().onRestoreInstanceState(state);
         } else {
-            if (NetworkStatsBucket.none()) NetworkStatsBucket.init();
+            if (NetworkStatsBucket.none()) NetworkStatsBucket.init(); // addNew() may lack permission here
             setListAdapter(new NetworkStatsAdapter(this));
         }
     }
@@ -57,7 +57,7 @@ public class  Activity extends android.app.ListActivity {
         state = getListView().onSaveInstanceState();
         super.onPause();
     }
-    
+
     static long getInstallationTime(final Context context) {
         try {
             return context.getPackageManager().getPackageInfo(context.getPackageName(), 0).lastUpdateTime;

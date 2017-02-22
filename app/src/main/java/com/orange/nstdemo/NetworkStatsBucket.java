@@ -26,7 +26,7 @@ class NetworkStatsBucket {
         Log.i(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
         NetworkStatsManager netStatsMgr = context.getSystemService(NetworkStatsManager.class);
         String id = context.getSystemService(TelephonyManager.class).getSubscriberId();
-        final long start = Activity.getInstallationTime(context);
+        final long start = ListActivity.getInstallationTime(context);
         final long end = System.currentTimeMillis();
         try {
             NetworkStats.Bucket mobile = netStatsMgr.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, id, start, end);
