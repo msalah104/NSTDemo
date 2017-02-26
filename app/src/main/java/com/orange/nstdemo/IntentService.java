@@ -13,7 +13,7 @@ public class IntentService extends android.app.IntentService {
             NetworkStatsBucket.init();
         }
 
-        NetworkStatsBucket.addNew(this);
+        NetworkStatsBucket.updateLog(this);
         sendBroadcast(new Intent(ListActivity.UPDATE));
     }
 }

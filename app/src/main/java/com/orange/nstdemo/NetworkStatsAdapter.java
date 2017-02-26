@@ -1,7 +1,13 @@
 package com.orange.nstdemo;
 
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.app.TaskStackBuilder;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Color;
+import android.support.v4.app.NotificationCompat;
 import android.text.Spannable;
 import android.text.SpannableString;
 import android.text.style.ForegroundColorSpan;
@@ -13,6 +19,8 @@ import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
+
+import static android.R.id.icon;
 
 class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
 
@@ -61,6 +69,7 @@ class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
         if (newBytes < oldBytes) span.setSpan(RED, i + 1, j, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return j;
     }
+
 
     static String formatDate(long milliSeconds) {
         // Create a DateFormatter object for displaying date in specified format.

@@ -16,7 +16,7 @@ import android.provider.Settings;
 import android.widget.BaseAdapter;
 
 public class ListActivity extends android.app.ListActivity {
-    private static final long INTERVAL = BuildConfig.DEBUG ? 5000 : AlarmManager.INTERVAL_FIFTEEN_MINUTES;
+    private static final long INTERVAL =  5000 ;
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
