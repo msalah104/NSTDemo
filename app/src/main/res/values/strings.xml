@@ -1,4 +1,5 @@
 <resources>
     <string name="app_name">NST Demo</string>
-    <string name="query_summary" formatted="false">%s\nMobile RX:%d TX:%d \nWi-Fi RX:%d TX:%d </string>
+    <string name="query_summary" formatted="false">Bucket #%d, %s\nMobile RX:%d TX:%d \nWi-Fi RX:%d TX:%d </string>
+    <string name="add">Add</string>
 </resources>
