@@ -9,6 +9,10 @@ public class IntentService extends android.app.IntentService {
     }
     @Override
     protected void onHandleIntent(Intent intent) {
+        if (NetworkStatsBucket.none()) {
+            NetworkStatsBucket.init();
+        }
+
         NetworkStatsBucket.addNew(this);
         sendBroadcast(new Intent(ListActivity.UPDATE));
     }
