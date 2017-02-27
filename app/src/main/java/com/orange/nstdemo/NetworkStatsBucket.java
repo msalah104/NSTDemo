@@ -49,27 +49,26 @@ class NetworkStatsBucket {
         buckets.add(0, new NetworkStatsBucket(mobile, wifi));
     }
 
-    static NetworkStats.Bucket getMobileUsage(final Context context, long start, long end) {
+    private static NetworkStats.Bucket getMobileUsage(final Context context, long start, long end) {
         NetworkStatsManager netStatsMgr = context.getSystemService(NetworkStatsManager.class);
         String id = context.getSystemService(TelephonyManager.class).getSubscriberId();
-        NetworkStats.Bucket mobile = null;
         try {
-            mobile = netStatsMgr.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, id, start, end);
+            return netStatsMgr.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, id, start, end);
         } catch (RemoteException e) {
             e.printStackTrace();
+            Log.e(TAG, "", e);
         }
-        return mobile;
+        return null;
     }
 
-    static NetworkStats.Bucket getWifiUsage(final Context context, long start, long end) {
+    private static NetworkStats.Bucket getWifiUsage(final Context context, long start, long end) {
         NetworkStatsManager netStatsMgr = context.getSystemService(NetworkStatsManager.class);
-        NetworkStats.Bucket wifi = null;
         try {
-            wifi = netStatsMgr.querySummaryForUser(ConnectivityManager.TYPE_WIFI, "", start, end);
+            return netStatsMgr.querySummaryForUser(ConnectivityManager.TYPE_WIFI, "", start, end);
         } catch (RemoteException e) {
-            e.printStackTrace();
+            Log.e(TAG, "", e);
         }
-        return wifi;
+        return null;
     }
 
     static void updateLog(final Context context) {
