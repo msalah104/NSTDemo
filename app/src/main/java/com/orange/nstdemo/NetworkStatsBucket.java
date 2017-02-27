@@ -50,21 +50,18 @@ class NetworkStatsBucket {
     }
 
     private static NetworkStats.Bucket getMobileUsage(final Context context, long start, long end) {
-        NetworkStatsManager netStatsMgr = context.getSystemService(NetworkStatsManager.class);
         String id = context.getSystemService(TelephonyManager.class).getSubscriberId();
-        try {
-            return netStatsMgr.querySummaryForUser(ConnectivityManager.TYPE_MOBILE, id, start, end);
-        } catch (RemoteException e) {
-            e.printStackTrace();
-            Log.e(TAG, "", e);
-        }
-        return null;
+        return getUsage(context, ConnectivityManager.TYPE_MOBILE, id, start, end);
     }
 
     private static NetworkStats.Bucket getWifiUsage(final Context context, long start, long end) {
-        NetworkStatsManager netStatsMgr = context.getSystemService(NetworkStatsManager.class);
+        return getUsage(context, ConnectivityManager.TYPE_WIFI, "", start, end);
+    }
+
+    private static NetworkStats.Bucket getUsage(final Context context, final int networkType, String subscriberId, long start, long end) {
+        final NetworkStatsManager netStatsMgr = context.getSystemService(NetworkStatsManager.class);
         try {
-            return netStatsMgr.querySummaryForUser(ConnectivityManager.TYPE_WIFI, "", start, end);
+            return netStatsMgr.querySummaryForUser(networkType, subscriberId, start, end);
         } catch (RemoteException e) {
             Log.e(TAG, "", e);
         }
