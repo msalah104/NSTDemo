@@ -16,7 +16,7 @@ import android.provider.Settings;
 import android.widget.BaseAdapter;
 
 public class ListActivity extends android.app.ListActivity {
-    private static final long INTERVAL =  5000 ;
+    private static final long INTERVAL = 60000;
     private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
