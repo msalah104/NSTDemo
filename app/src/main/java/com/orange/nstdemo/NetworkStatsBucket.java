@@ -84,7 +84,7 @@ class NetworkStatsBucket {
         if (    mobile.getRxBytes() < lastQueryMobile.getRxBytes() ||
                 mobile.getTxBytes() < lastQueryMobile.getTxBytes() ||
                 wifi.getRxBytes()   < lastQueryWifi.getRxBytes() ||
-                wifi.getTxBytes()   < lastQueryMobile.getTxBytes()) {
+                wifi.getTxBytes()   < lastQueryWifi.getTxBytes()) {
 
             buckets.add(0, new NetworkStatsBucket(lastQueryMobile, lastQueryWifi));
             buckets.add(0, new NetworkStatsBucket(mobile, wifi));
