@@ -89,9 +89,8 @@ class NetworkStatsBucket {
 
         Notification.Builder builder = new Notification.Builder(context);
 
-        Notification notification = builder.setContentTitle(NOTIFICATION_TITLE)
-                                           .setContentText(NOTIFICATION_CONTENT)
-                                           .setTicker(NOTIFICATION_TICKER)
+        Notification notification = builder.setContentTitle(context.getString(R.string.count_error))
+                                           .setContentText(NetworkStatsAdapter.formatDate(newMobileBucket.getEndTimeStamp()))
                                            .setSmallIcon(R.mipmap.ic_launcher)
                                            .setContentIntent(pendingIntent).build();
 
