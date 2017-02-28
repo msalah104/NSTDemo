@@ -1,6 +1,5 @@
 package com.orange.nstdemo;
 
-import android.app.AlarmManager;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
@@ -18,33 +17,38 @@ import java.util.ArrayList;
 import java.util.List;
 
 class NetworkStatsBucket {
-    private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
+    private static final String TAG = new Object() {
+    }.getClass().getEnclosingClass().getSimpleName();
     private static final String NOTIFICATION_TITLE = "NST_DEMO";
     private static final String NOTIFICATION_CONTENT = "Issue has been raised";
     private static final String NOTIFICATION_TICKER = "NST_DEMO: New Message Alert!";
     private static List<NetworkStatsBucket> buckets; // Mobile * Wi-Fi Buckets
-    private static long lastQueryTime = 0;
     private final NetworkStats.Bucket mobile, wifi;
-    private static NetworkStats.Bucket lastQueryMobile = null;
-    private static NetworkStats.Bucket lastQueryWifi = null;
 
     private NetworkStatsBucket(final NetworkStats.Bucket mobile, final NetworkStats.Bucket wifi) {
         this.mobile = mobile;
         this.wifi = wifi;
     }
-    NetworkStats.Bucket getMobile() { return mobile; }
-    NetworkStats.Bucket getWifi() { return wifi; }
-    static List<NetworkStatsBucket> getBuckets() { return buckets; }
+
+    NetworkStats.Bucket getMobile() {
+        return mobile;
+    }
+
+    NetworkStats.Bucket getWifi() {
+        return wifi;
+    }
+
+    static List<NetworkStatsBucket> getBuckets() {
+        return buckets;
+    }
+
     static void addNew(final Context context) {
-        lastQueryTime = System.currentTimeMillis();
-        Log.i(TAG, new Object(){}.getClass().getEnclosingMethod().getName());
+        Log.i(TAG, new Object() {
+        }.getClass().getEnclosingMethod().getName());
         final long start = ListActivity.getInstallationTime(context);
         final long end = System.currentTimeMillis();
         NetworkStats.Bucket mobile = getMobileUsage(context, start, end);
         NetworkStats.Bucket wifi = getWifiUsage(context, start, end);
-
-        lastQueryMobile = mobile;
-        lastQueryWifi = wifi;
         buckets.add(0, new NetworkStatsBucket(mobile, wifi));
     }
 
@@ -67,32 +71,16 @@ class NetworkStatsBucket {
         return null;
     }
 
-    static void updateLog(final Context context) {
-        final long end = System.currentTimeMillis();
-        if ((end - lastQueryTime )>= AlarmManager.INTERVAL_FIFTEEN_MINUTES) {
-            // Add new record to list
-            addNew(context);
-            return;
-        }
+    static void notifyIfDecrease(final Context context) {
+        NetworkStats.Bucket newMobileBucket = buckets.get(0).getMobile();
+        NetworkStats.Bucket newWifiBucket = buckets.get(0).getWifi();
+        NetworkStats.Bucket oldMobileBucket = buckets.get(1).getMobile();
+        NetworkStats.Bucket oldWifiBucket = buckets.get(1).getWifi();
+        if (oldMobileBucket.getRxBytes() < newMobileBucket.getRxBytes() &&
+            oldMobileBucket.getTxBytes() < newMobileBucket.getTxBytes() &&
+            oldWifiBucket.getRxBytes() < newWifiBucket.getRxBytes() &&
+            oldWifiBucket.getTxBytes() < newWifiBucket.getTxBytes()) return;
 
-        // Check if the issue happened
-        final long start = ListActivity.getInstallationTime(context);
-        NetworkStats.Bucket mobile = getMobileUsage(context, start, end);
-        NetworkStats.Bucket wifi = getWifiUsage(context, start, end);
-
-        if (    mobile.getRxBytes() < lastQueryMobile.getRxBytes() ||
-                mobile.getTxBytes() < lastQueryMobile.getTxBytes() ||
-                wifi.getRxBytes()   < lastQueryWifi.getRxBytes() ||
-                wifi.getTxBytes()   < lastQueryWifi.getTxBytes()) {
-
-            buckets.add(0, new NetworkStatsBucket(lastQueryMobile, lastQueryWifi));
-            buckets.add(0, new NetworkStatsBucket(mobile, wifi));
-            notifyUser(context);
-        }
-
-    }
-
-    public static void notifyUser(final Context context){
         Intent notificationIntent = new Intent(context, ListActivity.class);
 
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(context);
@@ -103,13 +91,13 @@ class NetworkStatsBucket {
         Notification.Builder builder = new Notification.Builder(context);
 
         Notification notification = builder.setContentTitle(NOTIFICATION_TITLE)
-                .setContentText(NOTIFICATION_CONTENT)
-                .setTicker(NOTIFICATION_TICKER)
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setContentIntent(pendingIntent).build();
+                                           .setContentText(NOTIFICATION_CONTENT)
+                                           .setTicker(NOTIFICATION_TICKER)
+                                           .setSmallIcon(R.mipmap.ic_launcher)
+                                           .setContentIntent(pendingIntent).build();
 
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.notify(0, notification);
+        notificationManager.notify(0,notification);
 
     }
 

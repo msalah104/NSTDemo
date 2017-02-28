@@ -12,8 +12,8 @@ public class IntentService extends android.app.IntentService {
         if (NetworkStatsBucket.none()) {
             NetworkStatsBucket.init();
         }
-
-        NetworkStatsBucket.updateLog(this);
+        NetworkStatsBucket.addNew(this);
+        NetworkStatsBucket.notifyIfDecrease(this);
         sendBroadcast(new Intent(ListActivity.UPDATE));
     }
 }
