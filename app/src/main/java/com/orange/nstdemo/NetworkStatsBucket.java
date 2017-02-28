@@ -17,8 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class NetworkStatsBucket {
-    private static final String TAG = new Object() {
-    }.getClass().getEnclosingClass().getSimpleName();
+    private static final String TAG = new Object(){}.getClass().getEnclosingClass().getSimpleName();
     private static final String NOTIFICATION_TITLE = "NST_DEMO";
     private static final String NOTIFICATION_CONTENT = "Issue has been raised";
     private static final String NOTIFICATION_TICKER = "NST_DEMO: New Message Alert!";
@@ -76,10 +75,10 @@ class NetworkStatsBucket {
         NetworkStats.Bucket newWifiBucket = buckets.get(0).getWifi();
         NetworkStats.Bucket oldMobileBucket = buckets.get(1).getMobile();
         NetworkStats.Bucket oldWifiBucket = buckets.get(1).getWifi();
-        if (oldMobileBucket.getRxBytes() < newMobileBucket.getRxBytes() &&
-            oldMobileBucket.getTxBytes() < newMobileBucket.getTxBytes() &&
-            oldWifiBucket.getRxBytes() < newWifiBucket.getRxBytes() &&
-            oldWifiBucket.getTxBytes() < newWifiBucket.getTxBytes()) return;
+        if (oldMobileBucket.getRxBytes() <= newMobileBucket.getRxBytes() &&
+            oldMobileBucket.getTxBytes() <= newMobileBucket.getTxBytes() &&
+            oldWifiBucket.getRxBytes() <= newWifiBucket.getRxBytes() &&
+            oldWifiBucket.getTxBytes() <= newWifiBucket.getTxBytes()) return;
 
         Intent notificationIntent = new Intent(context, ListActivity.class);
 
