@@ -11,7 +11,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.RemoteException;
-import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
 
@@ -101,7 +100,7 @@ class NetworkStatsBucket {
         stackBuilder.addNextIntent(notificationIntent);
         PendingIntent pendingIntent = stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+        Notification.Builder builder = new Notification.Builder(context);
 
         Notification notification = builder.setContentTitle(NOTIFICATION_TITLE)
                 .setContentText(NOTIFICATION_CONTENT)
