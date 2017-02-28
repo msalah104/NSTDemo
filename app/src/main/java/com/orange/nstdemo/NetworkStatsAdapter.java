@@ -32,27 +32,27 @@ class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
             convertView = layoutInflater.inflate(android.R.layout.simple_list_item_2, null);
         }
 
-        NetworkStatsBucket newBucket = getItem(position);
-        NetworkStatsBucket oldBucket = getItem(position < getCount() - 1 ? position + 1 : position);
+        NetworkStatsBucket lastBucket = getItem(position);
+        NetworkStatsBucket previousBucket = getItem(position < getCount() - 1 ? position + 1 : position);
 
-        if (newBucket == null) return convertView;
+        if (lastBucket == null) return convertView;
 
         TextView textView = (TextView) convertView.findViewById(android.R.id.text1);
-        String newString = String.format(
+        String string = String.format(
             getContext().getResources().getString(R.string.query_summary),
             getCount() - position - 1,
-            formatDate(newBucket.getMobile().getEndTimeStamp()),
-            newBucket.getMobile().getRxBytes(),
-            newBucket.getMobile().getTxBytes(),
-            newBucket.getWifi().getRxBytes(),
-            newBucket.getWifi().getTxBytes());
-        SpannableString newSpan = new SpannableString(newString);
-        int i = newString.indexOf('.');
-        i = colorize(newString, newSpan, i, newBucket.getMobile().getRxBytes(), oldBucket.getMobile().getRxBytes());
-        i = colorize(newString, newSpan, i, newBucket.getMobile().getTxBytes(), oldBucket.getMobile().getTxBytes());
-        i = colorize(newString, newSpan, i, newBucket.getWifi().getRxBytes(), oldBucket.getWifi().getRxBytes());
-        i = colorize(newString, newSpan, i, newBucket.getWifi().getTxBytes(), oldBucket.getWifi().getTxBytes());
-        textView.setText(newSpan);
+            formatDate(lastBucket.getMobile().getEndTimeStamp()),
+            lastBucket.getMobile().getRxBytes(),
+            lastBucket.getMobile().getTxBytes(),
+            lastBucket.getWifi().getRxBytes(),
+            lastBucket.getWifi().getTxBytes());
+        SpannableString span = new SpannableString(string);
+        int i = string.indexOf('.');
+        i = colorize(string, span, i, lastBucket.getMobile().getRxBytes(), previousBucket.getMobile().getRxBytes());
+        i = colorize(string, span, i, lastBucket.getMobile().getTxBytes(), previousBucket.getMobile().getTxBytes());
+        i = colorize(string, span, i, lastBucket.getWifi().getRxBytes(), previousBucket.getWifi().getRxBytes());
+        i = colorize(string, span, i, lastBucket.getWifi().getTxBytes(), previousBucket.getWifi().getTxBytes());
+        textView.setText(span);
 
         return convertView;
     }
