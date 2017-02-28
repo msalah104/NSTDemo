@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Color;
 import android.text.Spannable;
 import android.text.SpannableString;
+import android.text.style.CharacterStyle;
 import android.text.style.ForegroundColorSpan;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -46,19 +47,20 @@ class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
             newBucket.getWifi().getRxBytes(),
             newBucket.getWifi().getTxBytes());
         SpannableString newSpan = new SpannableString(newString);
-        int i = 0;
+        int i = newString.indexOf('.');
         i = colorize(newString, newSpan, i, newBucket.getMobile().getRxBytes(), oldBucket.getMobile().getRxBytes());
         i = colorize(newString, newSpan, i, newBucket.getMobile().getTxBytes(), oldBucket.getMobile().getTxBytes());
         i = colorize(newString, newSpan, i, newBucket.getWifi().getRxBytes(), oldBucket.getWifi().getRxBytes());
         i = colorize(newString, newSpan, i, newBucket.getWifi().getTxBytes(), oldBucket.getWifi().getTxBytes());
         textView.setText(newSpan);
+
         return convertView;
     }
 
     private int colorize(String string, SpannableString span, final int start, final long newBytes, final long oldBytes) {
-        int i = string.indexOf(':', start);
+        int i = string.indexOf(':', start) + 1;
         int j = string.indexOf(' ', i);
-        if (newBytes < oldBytes) span.setSpan(RED, i + 1, j, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if (newBytes < oldBytes) span.setSpan(CharacterStyle.wrap(RED), i, j, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         return j;
     }
 
