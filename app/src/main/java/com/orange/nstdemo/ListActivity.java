@@ -30,7 +30,7 @@ public class ListActivity extends android.app.ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setTitle(NetworkStatsAdapter.formatDate(getInstallationTime(this)));
-        Intent intent = new Intent(getApplicationContext(), IntentService.class);
+        final Intent intent = new Intent(getApplicationContext(), IntentService.class);
         final PendingIntent pending = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         getSystemService(AlarmManager.class).setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), INTERVAL, pending);
     }
@@ -41,7 +41,8 @@ public class ListActivity extends android.app.ListActivity {
         if (state != null) {
             getListView().onRestoreInstanceState(state);
         } else {
-            if (NetworkStatsBucket.none()) NetworkStatsBucket.init(); // addNew() may lack permission here
+            // addNew() may lack permission here
+            if (NetworkStatsBucket.none()) NetworkStatsBucket.init();
             setListAdapter(new NetworkStatsAdapter(this));
         }
         registerReceiver(broadcastReceiver, new IntentFilter(UPDATE));

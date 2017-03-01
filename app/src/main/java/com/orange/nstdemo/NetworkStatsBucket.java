@@ -28,7 +28,6 @@ class NetworkStatsBucket {
         this.wifi = queryWifiSummaryForUser(context, start, end);
     }
     NetworkStats.Bucket getMobile() { return mobile; }
-
     NetworkStats.Bucket getWifi() { return wifi; }
 
     static List<NetworkStatsBucket> getBuckets() { return buckets; }
@@ -38,16 +37,16 @@ class NetworkStatsBucket {
         buckets.add(0, new NetworkStatsBucket(context));
     }
 
-    private static NetworkStats.Bucket queryMobileSummaryForUser(final Context context, long start, long end) {
-        String id = context.getSystemService(TelephonyManager.class).getSubscriberId();
+    private static NetworkStats.Bucket queryMobileSummaryForUser(final Context context, final long start, final long end) {
+        final String id = context.getSystemService(TelephonyManager.class).getSubscriberId();
         return querySummaryForUser(context, ConnectivityManager.TYPE_MOBILE, id, start, end);
     }
 
-    private static NetworkStats.Bucket queryWifiSummaryForUser(final Context context, long start, long end) {
+    private static NetworkStats.Bucket queryWifiSummaryForUser(final Context context, final long start, final long end) {
         return querySummaryForUser(context, ConnectivityManager.TYPE_WIFI, "", start, end);
     }
 
-    private static NetworkStats.Bucket querySummaryForUser(final Context context, final int networkType, String subscriberId, long start, long end) {
+    private static NetworkStats.Bucket querySummaryForUser(final Context context, final int networkType, String subscriberId, final long start, final long end) {
         final NetworkStatsManager netStatsMgr = context.getSystemService(NetworkStatsManager.class);
         try {
             return netStatsMgr.querySummaryForUser(networkType, subscriberId, start, end);
@@ -67,11 +66,11 @@ class NetworkStatsBucket {
             previousWifiBucket.getRxBytes() <= lastWifiBucket.getRxBytes() &&
             previousWifiBucket.getTxBytes() <= lastWifiBucket.getTxBytes()) return;
 
-        PendingIntent pending = TaskStackBuilder.create(context)
+        final PendingIntent pending = TaskStackBuilder.create(context)
             .addParentStack(ListActivity.class)
             .addNextIntent(new Intent(context, ListActivity.class))
             .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-        Notification notification = new Notification.Builder(context)
+        final Notification notification = new Notification.Builder(context)
             .setContentTitle(context.getString(R.string.count_error))
             .setContentText(NetworkStatsAdapter.formatDate(lastMobileBucket.getEndTimeStamp()))
             .setSmallIcon(R.mipmap.ic_launcher)
