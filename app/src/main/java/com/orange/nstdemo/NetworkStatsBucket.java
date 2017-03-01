@@ -72,7 +72,7 @@ class NetworkStatsBucket {
             .getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
         final Notification notification = new Notification.Builder(context)
             .setContentTitle(context.getString(R.string.count_error))
-            .setContentText(NetworkStatsAdapter.formatDate(lastMobileBucket.getEndTimeStamp()))
+            .setContentText(NetworkStatsAdapter.dateIso8601(lastMobileBucket.getEndTimeStamp()))
             .setSmallIcon(R.mipmap.ic_launcher)
             .setContentIntent(pending)
             .build();

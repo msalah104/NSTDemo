@@ -13,12 +13,12 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Date;
+import java.util.Locale;
 
 class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
 
     private static final ForegroundColorSpan RED = new ForegroundColorSpan(Color.RED);
-    private static final String FORMATTER = "dd/MM/yyyy hh:mm:ss.SSS";
 
     NetworkStatsAdapter(final Context context) {
         super(context, android.R.layout.simple_list_item_2, NetworkStatsBucket.getBuckets());
@@ -37,11 +37,10 @@ class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
 
         if (last == null) return convertView;
 
-        final TextView textView = (TextView) convertView.findViewById(android.R.id.text1);
         final String string = String.format(
             getContext().getResources().getString(R.string.query_summary),
             getCount() - position - 1,
-            formatDate(last.getMobile().getEndTimeStamp()),
+            dateIso8601(last.getMobile().getEndTimeStamp()),
             last.getMobile().getRxBytes(),
             last.getMobile().getTxBytes(),
             last.getWifi().getRxBytes(),
@@ -52,26 +51,22 @@ class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
         i = colorize(string, span, i, last.getMobile().getTxBytes(), previous.getMobile().getTxBytes());
         i = colorize(string, span, i, last.getWifi().getRxBytes(), previous.getWifi().getRxBytes());
         i = colorize(string, span, i, last.getWifi().getTxBytes(), previous.getWifi().getTxBytes());
-        textView.setText(span);
+        ((TextView) convertView.findViewById(android.R.id.text1)).setText(span);
 
         return convertView;
     }
 
-    private int colorize(final String string, final SpannableString span, final int start, final long newBytes, final long oldBytes) {
+    private int colorize(final String string, final SpannableString span, final int start, final long last, final long previous) {
         final int i = string.indexOf(':', start) + 1;
         final int j = string.indexOf(' ', i);
-        if (newBytes < oldBytes) span.setSpan(CharacterStyle.wrap(RED), i, j, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        if (last < previous) {
+            span.setSpan(CharacterStyle.wrap(RED), i, j, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
         return j;
     }
-    
-    static String formatDate(final long milliSeconds) {
 
-        // Create a DateFormatter object for displaying date in specified format.
-        final SimpleDateFormat formatter = new SimpleDateFormat(FORMATTER);
-        // Create a calendar object that will convert the date and time value in milliseconds to date.
-        final Calendar calendar = Calendar.getInstance();
-        calendar.setTimeInMillis(milliSeconds);
-        return formatter.format(calendar.getTime());
+    static String dateIso8601(final long date) {
+        return new SimpleDateFormat("yyyy-MM-dd'T'HH:mmZ", Locale.US).format(new Date(date));
     }
 
 }

@@ -29,7 +29,7 @@ public class ListActivity extends android.app.ListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setTitle(NetworkStatsAdapter.formatDate(getInstallationTime(this)));
+        setTitle(NetworkStatsAdapter.dateIso8601(getInstallationTime(this)));
         final Intent intent = new Intent(getApplicationContext(), IntentService.class);
         final PendingIntent pending = PendingIntent.getService(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT);
         getSystemService(AlarmManager.class).setInexactRepeating(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), INTERVAL, pending);
