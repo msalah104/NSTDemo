@@ -46,7 +46,7 @@ class NetworkStatsAdapter extends ArrayAdapter<NetworkStatsBucket> {
             last.getWifi().getRxBytes(),
             last.getWifi().getTxBytes());
         final SpannableString span = new SpannableString(string);
-        int i = string.indexOf('.');
+        int i = string.indexOf('+');
         i = colorize(string, span, i, last.getMobile().getRxBytes(), previous.getMobile().getRxBytes());
         i = colorize(string, span, i, last.getMobile().getTxBytes(), previous.getMobile().getTxBytes());
         i = colorize(string, span, i, last.getWifi().getRxBytes(), previous.getWifi().getRxBytes());

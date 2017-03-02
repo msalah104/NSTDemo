@@ -7,20 +7,17 @@ android {
         applicationId "com.orange.nstdemo"
         minSdkVersion 23
         targetSdkVersion 25
-        versionCode 1
-        versionName "1"
-        jackOptions {
-            enabled true
-        }
+        versionCode 2
+        versionName "2"
     }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+    signingConfigs {
+        release
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
         }
     }
 }
@@ -28,3 +25,11 @@ android {
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 }
+
+def releaseProperties = new Properties()
+
+releaseProperties.load(new FileInputStream(rootProject.file("release.properties")))
+android.signingConfigs.release.storeFile rootProject.file(releaseProperties.storeFile)
+android.signingConfigs.release.storePassword releaseProperties.storePassword
+android.signingConfigs.release.keyAlias releaseProperties.keyAlias
+android.signingConfigs.release.keyPassword releaseProperties.keyPassword
